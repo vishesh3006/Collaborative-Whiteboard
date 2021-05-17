@@ -3,7 +3,6 @@
 (function() {
 
   var socket = io();
-  // This object holds the implementation of each drawing tool.
   var tools = {};
   var textarea;
   var colorPicked;
@@ -12,17 +11,16 @@
   var SelectedFontSize;
   
   
-// Keep everything in anonymous function, called on window load.
+
 if(window.addEventListener) {
 window.addEventListener('load', function () {
   var canvas, context, canvaso, contexto;
 
-  // The active tool instance.
   var tool;
   var tool_default = 'pencil';
 
   function init () {
-    // Find the canvas element.
+  
     canvaso = document.getElementById('imageView');
     if (!canvaso) {
       alert('Error: I cannot find the canvas element!');
@@ -34,14 +32,14 @@ window.addEventListener('load', function () {
       return;
     }
 
-    // Get the 2D canvas context.
+  
     contexto = canvaso.getContext('2d');
     if (!contexto) {
       alert('Error: failed to getContext!');
       return;
     }
 
-    // Add the temporary canvas.
+    
     var container = canvaso.parentNode;
     canvas = document.createElement('canvas');
     if (!canvas) {
@@ -56,34 +54,31 @@ window.addEventListener('load', function () {
 
     context = canvas.getContext('2d');
 
-    // Get the tool select input.
-   // var tool_select = document.getElementById('dtool');
+    
     var tool_select = document.getElementById('pencil-button');
    
-    //tool_select.addEventListener('change', ev_tool_change, false);
-    
-    //Choose colour picker
+  
     colorPicked = $("#colour-picker").val();
     
     $("#colour-picker").change(function(){
         colorPicked = $("#colour-picker").val();
     });
     
-    //Choose line Width
+    
     lineWidthPicked = $("#line-Width").val();
         
     $("#line-Width").change(function(){
         lineWidthPicked = $("#line-Width").val();
     });
     
-    //SelectedFontFamily
+    
     SelectedFontFamily = $("#draw-text-font-family").val();
     
     $("#draw-text-font-family").change(function(){
         SelectedFontFamily = $("#draw-text-font-family").val();
     })
     
-    //SelectedFontSize
+    
     SelectedFontSize = $("#draw-text-font-size").val();
     
     $("#draw-text-font-family").change(function(){
@@ -91,7 +86,7 @@ window.addEventListener('load', function () {
     })
     
 
-    // Activate the default tool.
+  
     if (tools[tool_default]) {
       tool = new tools[tool_default]();
       tool_select.value = tool_default;
@@ -129,7 +124,7 @@ window.addEventListener('load', function () {
     
     
     
-    //Draw Grids
+    
   function SketchGrid(gridSize) {
       context.clearRect(0, 0, canvas.width, canvas.height);
       
@@ -150,15 +145,8 @@ window.addEventListener('load', function () {
        }else if(gridSize == "nogrid"){
            gridWidth = 25;
            gridColor = "#fff";  //no grid
-       }
-
-       /**
-         * i is used for both x and y to draw
-         * a line every 5 pixels starting at
-         * .5 to offset the canvas edges
-         */
-         
-        context.beginPath();  //important draw new everytime
+       } 
+        context.beginPath();  
         
         for(var i = .5; i < w || i < h; i += gridWidth) {
             // draw horizontal lines
@@ -169,22 +157,11 @@ window.addEventListener('load', function () {
             context.lineTo( w, i);
         }
         context.strokeStyle = gridColor;
-        //contexto.strokeStyle = 'hsla(0, 0%, 40%, .5)';
         context.stroke();
 
     }
     
-    /*var SelectedGrid = $("#draw-grid").val();
-    
-    SketchGrid(SelectedGrid)  //Calling drawing grid fn
-    
-    $("#draw-grid").change(function(){
-        var SelectedGrid = $("#draw-grid").val();
-        SketchGrid(SelectedGrid)  //Calling drawing grid fn
-    });*/
-    
-    
-      // limit the number of events per second
+   
   function throttle(callback, delay) {
     var previousCall = new Date().getTime();
     return function() {
@@ -204,11 +181,10 @@ window.addEventListener('load', function () {
     canvas.addEventListener('mouseup',   ev_canvas, false);
   }
 
-  // The general-purpose event handler. This function just determines the mouse 
-  // position relative to the canvas element.
+ 
   function ev_canvas (ev) {
       //console.log(ev)
-      var CanvPos = canvas.getBoundingClientRect();  //Global Fix cursor position bug
+      var CanvPos = canvas.getBoundingClientRect();  
     if (ev.clientX || ev.clientX == 0) { // Firefox
       //ev._x = ev.clientX;
       ev._x = ev.clientX - CanvPos.left;
@@ -221,7 +197,7 @@ window.addEventListener('load', function () {
       //ev._y = ev.offsetY;
     }
     
-    // Call the event handler of the tool.
+    
     var func = tool[ev.type];
     if (func) {
       func(ev);
@@ -231,7 +207,7 @@ window.addEventListener('load', function () {
     
   }
 
-  // The event handler for any changes made to the tool selector.
+  
   function ev_tool_change (ev) {
     if (tools[this.value]) {
       tool = new tools[this.value]();
@@ -239,9 +215,7 @@ window.addEventListener('load', function () {
   }
   
   
-  // This function draws the #imageTemp canvas on top of #imageView, after which 
-  // #imageTemp is cleared. This function is called each time when the user 
-  // completes a drawing operation.
+
   function img_update(trans) {
 		contexto.drawImage(canvas, 0, 0);
 		context.clearRect(0, 0, canvas.width, canvas.height);
@@ -306,8 +280,7 @@ window.addEventListener('load', function () {
     textarea.style.display = "none";
     textarea.style.value = "";
 
-    // This is called when you start holding down the mouse button.
-    // This starts the pencil drawing.
+
     this.mousedown = function (ev) {
         //context.beginPath();
         //context.moveTo(ev._x, ev._y);
@@ -316,9 +289,7 @@ window.addEventListener('load', function () {
         tool.y0 = ev._y;
     };
 
-    // This function is called every time you move the mouse. Obviously, it only 
-    // draws if the tool.started state is set to true (when you are holding down 
-    // the mouse button).
+   
     this.mousemove = function (ev) {
       if (tool.started) {
         drawPencil(tool.x0, tool.y0, ev._x, ev._y, colorPicked, lineWidthPicked, true);
@@ -327,7 +298,7 @@ window.addEventListener('load', function () {
       }
     };
 
-    // This is called when you release the mouse button.
+   
     this.mouseup = function (ev) {
       if (tool.started) {
         tool.mousemove(ev);
@@ -376,14 +347,14 @@ window.addEventListener('load', function () {
     socket.on('rectangle', onDrawRect);
 
 
-  // The rectangle tool.
+
   tools.rect = function () {
     var tool = this;
     this.started = false;
     textarea.style.display = "none";
     textarea.style.value = "";
     
-   //above the tool function
+   
 
     this.mousedown = function (ev) {
       tool.started = true;
@@ -401,14 +372,14 @@ window.addEventListener('load', function () {
           pos_w = Math.abs(ev._x - tool.x0),
           pos_h = Math.abs(ev._y - tool.y0);
 
-      context.clearRect(0, 0, canvas.width, canvas.height); //in drawRect
+      context.clearRect(0, 0, canvas.width, canvas.height); 
 
       if (!pos_w || !pos_h) {
         return;
       }
         //console.log("emitting")
       drawRect(pos_x, pos_y, pos_w, pos_h, colorPicked, lineWidthPicked, true);
-      //context.strokeRect(x, y, w, h); // in drawRect
+      //context.strokeRect(x, y, w, h); 
     };
 
     this.mouseup = function (ev) {
@@ -493,9 +464,7 @@ window.addEventListener('load', function () {
     
   };
   
-  //The Circle tool
-  
-  //Old Circle Function
+ 
   function old_drawCircle(x1, y1, x2, y2, color, linewidth, emit){
        
             context.clearRect(0, 0, canvas.width, canvas.height); 
@@ -865,10 +834,7 @@ tools.text = function () {
                             var text_node = document.createTextNode(lines[i][j]);
                             tmp_txt_ctn.appendChild(text_node);
                              
-                            // Since tmp_txt_ctn is not taking any space
-                            // in layout due to display: none, we gotta
-                            // make it take some space, while keeping it
-                            // hidden/invisible and then get dimensions
+                            
                             tmp_txt_ctn.style.position   = 'absolute';
                             tmp_txt_ctn.style.visibility = 'hidden';
                             tmp_txt_ctn.style.display    = 'block';
@@ -880,7 +846,7 @@ tools.text = function () {
                             tmp_txt_ctn.style.visibility = '';
                             tmp_txt_ctn.style.display    = 'none';
                              
-                            // Logix
+                          
                              //console.log(width, parseInt(textarea.style.width));
                             if (width > parseInt(textarea.style.width)) {
                                 break;
@@ -891,9 +857,7 @@ tools.text = function () {
                     tmp_txt_ctn.innerHTML = '';
                 }
                 
-                /*var ta_comp_style = getComputedStyle(textarea);
-                var fs = ta_comp_style.getPropertyValue('font-size');
-                var ff = ta_comp_style.getPropertyValue('font-family');*/
+                
                 var fs = SelectedFontSize + "px";
                 var ff = SelectedFontFamily;
 
@@ -963,7 +927,6 @@ $("#clear-all").click(function(){
 
 
 
-//end
 
 
 })();

@@ -1,4 +1,4 @@
- var textarea = document.createElement('textarea');
+var textarea = document.createElement('textarea');
 textarea.id = 'text_tool';
 container.appendChild(textarea);
 
